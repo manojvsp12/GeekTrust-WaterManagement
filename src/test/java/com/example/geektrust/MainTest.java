@@ -2,7 +2,6 @@ package com.example.geektrust;
 
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.INVALID_INPUT;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -36,6 +35,7 @@ class MainTest {
 		waterbill.setTankerWaterConsumed(0);
 		waterbill.setTankerWaterCost(0);
 		waterbill.setTotalWaterConsumed(0);
+		waterbill.setApartmentType(null);
 	}
 
 	@Test
@@ -147,7 +147,7 @@ class MainTest {
 		String absolutePath = new File(
 				this.getClass().getClassLoader().getResource("MultipleBill.txt").getFile()).getAbsolutePath();
 		Main.main(new String[] { absolutePath });
-		assertTrue(outputStreamCaptor.toString().trim().startsWith("TOTAL_WATER_CONSUMED_IN_LITRES"));
+		assertEquals("ERROR: " + INVALID_INPUT, outputStreamCaptor.toString().trim());
 	}
 
 	@Test

@@ -2,13 +2,15 @@ package com.example.geektrust.service.impl;
 
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.DEFAULT_WATER_ALLOCATION;
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.NO_OF_DAYS;
+import static com.example.geektrust.constant.WaterPriceChart.BOREWELL_WATER;
+import static com.example.geektrust.constant.WaterPriceChart.TANKER_WATER_1;
+import static com.example.geektrust.constant.WaterPriceChart.TANKER_WATER_2;
+import static com.example.geektrust.constant.WaterPriceChart.TANKER_WATER_3;
+import static com.example.geektrust.constant.WaterPriceChart.TANKER_WATER_4;
 import static com.example.geektrust.util.WaterBillUtil.percentageToValue;
 import static com.example.geektrust.util.WaterBillUtil.ratioToPercentage;
 
-import java.util.List;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.example.geektrust.constant.ApartmentType;
 import com.example.geektrust.constant.WaterPriceChart;
@@ -82,12 +84,12 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 * 
 	 * @param waterBill The object that contains the water bill details.
 	 */
-	private void calcTotalWaterConsumption(WaterBill waterBill) {
+	protected void calcTotalWaterConsumption(WaterBill waterBill) {
 		Entry<Double, Double> percent = ratioToPercentage(waterBill.getCorporationWaterRatio(),
 				waterBill.getBorewellWaterRatio());
-		double corpWaterConsumption = calcCorpWaterConsumption(waterBill, percent);
-		double borewellWaterConsumption = calcBorewellWaterConsumption(waterBill, percent);
-		double tankerWaterConsumption = calcTankerWaterConsumption(waterBill);
+		double corpWaterConsumption = calculateCorpWaterConsumption(waterBill, percent);
+		double borewellWaterConsumption = calculateBorewellWaterConsumption(waterBill, percent);
+		double tankerWaterConsumption = calculateTankerWaterConsumption(waterBill);
 		waterBill.setCorporationWaterConsumed(corpWaterConsumption);
 		waterBill.setBorewellWaterConsumed(borewellWaterConsumption);
 		waterBill.setTankerWaterConsumed(tankerWaterConsumption);
@@ -100,7 +102,7 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 * 
 	 * @param waterBill The object that contains the water consumption details.
 	 */
-	private void calcTotalCost(WaterBill waterBill) {
+	protected void calcTotalCost(WaterBill waterBill) {
 		waterBill.setCorporationWaterCost(
 				calculatePrice(WaterType.CORPORATION_WATER, Math.round(waterBill.getCorporationWaterConsumed())));
 		waterBill.setBorewellWaterCost(
@@ -119,24 +121,35 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 *                     TANKER.
 	 * @param usedQuantity The amount of water used in the billing cycle.
 	 */
-	public double calculatePrice(WaterType waterType, final long usedQuantity) {
-		double totalPrice = 0;
-		Long quantity = Long.valueOf(usedQuantity);
-		List<WaterPriceChart> priceSlabDetails = Stream.of(WaterPriceChart.values())
-				.filter(type -> type.name().startsWith(waterType.name()))
-				.filter(type -> type.getStartRange() <= usedQuantity).collect(Collectors.toList());
-		for (int i = 0; i < priceSlabDetails.size(); i++) {
-			WaterPriceChart slab = priceSlabDetails.get(i);
-			int slabQuantity = i > 0 ? slab.getEndRange() - priceSlabDetails.get(i - 1).getEndRange()
-					: slab.getEndRange();
-			if ((quantity - slabQuantity) >= 0) {
-				quantity = quantity - slabQuantity;
-				totalPrice += slabQuantity * slab.getPrice();
-			} else {
-				totalPrice += quantity * slab.getPrice();
-			}
+	private double calculatePrice(WaterType waterType, Long usedQuantity) {
+		switch (waterType) {
+		case BOREWELL_WATER:
+			return BOREWELL_WATER.getPrice() * usedQuantity;
+		case CORPORATION_WATER:
+			return WaterPriceChart.CORPORATION_WATER.getPrice() * usedQuantity;
+		case TANKER_WATER:
+			return calculateTankerWaterPrice(usedQuantity, TANKER_WATER_1)
+					+ calculateTankerWaterPrice(usedQuantity - TANKER_WATER_1.getEndRange(), TANKER_WATER_2)
+					+ calculateTankerWaterPrice(usedQuantity - TANKER_WATER_2.getEndRange(), TANKER_WATER_3)
+					+ calculateTankerWaterPrice(usedQuantity - TANKER_WATER_3.getEndRange(), TANKER_WATER_4);
+		default:
+			return 0;
 		}
-		return totalPrice;
+	}
+
+	/**
+	 * It calculates the price of water based on the slab of tanker water and the
+	 * quantity used
+	 * 
+	 * @param WaterPriceChart The slab of tanker water
+	 * @param usedQuantity The amount of water used in the billing cycle.
+	 */
+	private double calculateTankerWaterPrice(long usedQuantity, WaterPriceChart tankerWater) {
+		if (usedQuantity <= 0) {
+			return 0;
+		}
+		long quantity = tankerWater.getEndRange() <= usedQuantity ? tankerWater.getAllotedMaxQuantity() : usedQuantity;
+		return tankerWater.getPrice() * quantity;
 	}
 
 	/**
@@ -147,7 +160,7 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 *                  responsible for.
 	 * @return The value of the water consumption for the corporation.
 	 */
-	private double calcCorpWaterConsumption(WaterBill waterBill, Entry<Double, Double> percent) {
+	private double calculateCorpWaterConsumption(WaterBill waterBill, Entry<Double, Double> percent) {
 		return percentageToValue(calculateMaxWaterAllocation(waterBill.getApartmentType().getMemberCount()),
 				percent.getKey());
 	}
@@ -159,7 +172,7 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 * @param percent   This is the percentage of water consumption that is allowed
 	 *                  for the apartment type.
 	 */
-	private double calcBorewellWaterConsumption(WaterBill waterBill, Entry<Double, Double> percent) {
+	private double calculateBorewellWaterConsumption(WaterBill waterBill, Entry<Double, Double> percent) {
 		return percentageToValue(calculateMaxWaterAllocation(waterBill.getApartmentType().getMemberCount()),
 				percent.getValue());
 	}
@@ -170,7 +183,7 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 * @param waterBill The water bill object that is being calculated.
 	 * @return The maximum water allocation for the guest count.
 	 */
-	private double calcTankerWaterConsumption(WaterBill waterBill) {
+	private double calculateTankerWaterConsumption(WaterBill waterBill) {
 		return calculateMaxWaterAllocation(waterBill.getGuestCount());
 	}
 

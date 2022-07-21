@@ -75,9 +75,8 @@ public class Main {
 		}
 		if (inputData[0].contentEquals(BILL)) {
 			WaterBill waterBill = waterBillService.generateBill();
-			System.out.println(String.format("%s\t%s", "TOTAL_WATER_CONSUMED_IN_LITRES", "TOTAL_COST"));
 			System.out.println(
-					String.format("%s\t\t\t\t%s", waterBill.getTotalWaterConsumed(), waterBill.getTotalCost()));
+					String.format("%s %s", waterBill.getTotalWaterConsumed(), waterBill.getTotalCost()));
 		}
 	}
 }

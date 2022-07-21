@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  */
 public class WaterBillAppCommonConstants {
 	
-	private WaterBillAppCommonConstants() {
+	public WaterBillAppCommonConstants() {
 		
 	}
 
@@ -26,4 +26,18 @@ public class WaterBillAppCommonConstants {
 	public static final String ALLOT_WATER = "ALLOT_WATER";
 
 	public static final String INVALID_INPUT = "Invalid input";
+
+	public static final String EMPTY_SPACE = "";
+	
+	public static final String SPACE = " ";
+	
+	public static final String RATIO_SPLIT = ":";
+	
+	public static final int BILL_MAX_ALLOWED_INPUT_LENGTH = 1;
+	
+	public static final int ADD_GUESTS_MAX_ALLOWED_INPUT_LENGTH = 2;
+	
+	public static final int ALLOT_WATER_MAX_ALLOWED_RATIO_LENGTH = 2;
+	
+	public static final int ALLOT_WATER_MAX_ALLOWED_INPUT_LENGTH = 3;
 }
