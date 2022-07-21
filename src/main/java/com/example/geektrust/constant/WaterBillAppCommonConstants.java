@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  */
 public class WaterBillAppCommonConstants {
 	
-	public WaterBillAppCommonConstants() {
+	private WaterBillAppCommonConstants() {
 		
 	}
 
