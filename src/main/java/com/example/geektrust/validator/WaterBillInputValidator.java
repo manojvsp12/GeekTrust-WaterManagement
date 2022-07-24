@@ -5,6 +5,7 @@ import static com.example.geektrust.constant.WaterBillAppCommonConstants.ADD_GUE
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.ALLOT_WATER;
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.ALLOT_WATER_MAX_ALLOWED_INPUT_LENGTH;
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.ALLOT_WATER_MAX_ALLOWED_RATIO_LENGTH;
+import static com.example.geektrust.constant.WaterBillAppCommonConstants.APARTMENT_CMD;
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.BILL;
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.BILL_MAX_ALLOWED_INPUT_LENGTH;
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.EMPTY_SPACE;
@@ -14,11 +15,9 @@ import static com.example.geektrust.constant.WaterBillAppCommonConstants.SPACE;
 import static com.example.geektrust.constant.WaterBillAppCommonConstants.SPLITTER;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.function.Predicate;
 
-import com.example.geektrust.constant.ApartmentType;
-import com.example.geektrust.dto.WaterBill;
+import com.example.geektrust.constant.WaterBillAppCommonConstants;
 import com.example.geektrust.exception.WaterBillAppException;
 
 /**
@@ -52,8 +51,26 @@ public class WaterBillInputValidator {
 		case BILL:
 			validateBillInput(inputData);
 			break;
+		case APARTMENT_CMD:
+			validateApartmentInput(inputData);
+			break;
 		default:
 			throw new WaterBillAppException(INVALID_INPUT);
+		}
+	}
+
+	private void validateApartmentInput(String[] inputData) throws WaterBillAppException {
+		if (inputData.length != WaterBillAppCommonConstants.APARTMENT_MAX_ALLOWED_INPUT_LENGTH
+				|| !isDigit.test(inputData[1]) || !isDigit.test(inputData[2])) {
+			throw new WaterBillAppException(INVALID_INPUT);
+		}
+		Integer apartmentSize = Integer.valueOf(inputData[1]);
+		Integer numberOfPersons = Integer.valueOf(inputData[2]);
+		if (apartmentSize < 0 && numberOfPersons < 0) {
+			throw new WaterBillAppException(INVALID_INPUT);
+		}
+		if (numberOfPersons > (apartmentSize * 2)) {
+			throw new WaterBillAppException("Number of residents exceeded than the allowed limit");
 		}
 	}
 
@@ -63,15 +80,12 @@ public class WaterBillInputValidator {
 	 * @param inputData The input data from the user
 	 */
 	private void validateAllotWaterInput(String[] inputData) throws WaterBillAppException {
-		if (inputData.length != ALLOT_WATER_MAX_ALLOWED_INPUT_LENGTH || !isDigit.test(inputData[1])) {
+		if (inputData.length != ALLOT_WATER_MAX_ALLOWED_INPUT_LENGTH) {
 			throw new WaterBillAppException(INVALID_INPUT);
 		}
-		String[] ratioInput = inputData[2].split(RATIO_SPLIT);
+		String[] ratioInput = inputData[1].split(RATIO_SPLIT);
 		if (ratioInput.length != ALLOT_WATER_MAX_ALLOWED_RATIO_LENGTH || !isDigit.test(ratioInput[0])
 				|| !isDigit.test(ratioInput[1])) {
-			throw new WaterBillAppException(INVALID_INPUT);
-		}
-		if (!ApartmentType.getApartmentTypeBySize(Integer.valueOf(inputData[1])).isPresent()) {
 			throw new WaterBillAppException(INVALID_INPUT);
 		}
 	}
@@ -82,7 +96,11 @@ public class WaterBillInputValidator {
 	 * @param inputData The input data that the user has entered.
 	 */
 	private void validateAddGuestsInput(String[] inputData) throws WaterBillAppException {
-		if (inputData.length != ADD_GUESTS_MAX_ALLOWED_INPUT_LENGTH || !isDigit.test(inputData[1])) {
+		if (inputData.length != ADD_GUESTS_MAX_ALLOWED_INPUT_LENGTH || !isDigit.test(inputData[1])|| !isDigit.test(inputData[2])) {
+			throw new WaterBillAppException(INVALID_INPUT);
+		}
+		Integer numberOfDays = Integer.valueOf(inputData[2]);
+		if (numberOfDays < 0 || numberOfDays > 30) {
 			throw new WaterBillAppException(INVALID_INPUT);
 		}
 	}
@@ -93,8 +111,7 @@ public class WaterBillInputValidator {
 	 * @param inputData The input data that the user has entered.
 	 */
 	private void validateBillInput(String[] inputData) throws WaterBillAppException {
-		if (Objects.isNull(WaterBill.getInstance().getApartmentType())
-				|| inputData.length != BILL_MAX_ALLOWED_INPUT_LENGTH) {
+		if (inputData.length != BILL_MAX_ALLOWED_INPUT_LENGTH) {
 			throw new WaterBillAppException(INVALID_INPUT);
 		}
 	}

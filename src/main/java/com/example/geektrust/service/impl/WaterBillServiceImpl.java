@@ -12,7 +12,6 @@ import static com.example.geektrust.util.WaterBillUtil.ratioToPercentage;
 
 import java.util.Map.Entry;
 
-import com.example.geektrust.constant.ApartmentType;
 import com.example.geektrust.constant.WaterPriceChart;
 import com.example.geektrust.constant.WaterType;
 import com.example.geektrust.dto.WaterBill;
@@ -25,6 +24,14 @@ import com.example.geektrust.service.WaterBillService;
  *
  */
 public class WaterBillServiceImpl implements WaterBillService {
+	
+	@Override
+	public WaterBill createApartment(Integer apartmentSize, Integer numberOfPersons) {
+		WaterBill waterBill = WaterBill.getInstance();
+		waterBill.setApartmentSize(apartmentSize);
+		waterBill.setNumberOfPersonsInApartment(numberOfPersons);
+		return WaterBill.getInstance();
+	}
 
 	/**
 	 * This function is used to allot water to the apartment
@@ -36,9 +43,8 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 * @return WaterBill
 	 */
 	@Override
-	public WaterBill allotWater(ApartmentType apartmentType, WaterType waterType, int ratio) {
+	public WaterBill allotWater(WaterType waterType, int ratio) {
 		WaterBill waterBill = WaterBill.getInstance();
-		waterBill.setApartmentType(apartmentType);
 		switch (waterType) {
 			case CORPORATION_WATER:
 				waterBill.setCorporationWaterRatio(ratio);
@@ -59,9 +65,9 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 * @return A WaterBill object
 	 */
 	@Override
-	public WaterBill addGuests(int numberOfGuests) {
+	public WaterBill addGuests(int numberOfGuests, int numberOfDays) {
 		WaterBill waterBill = WaterBill.getInstance();
-		waterBill.setGuestCount(waterBill.getGuestCount() + numberOfGuests);
+		waterBill.addGuests(numberOfGuests, numberOfDays);
 		return waterBill;
 	}
 
@@ -161,7 +167,7 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 * @return The value of the water consumption for the corporation.
 	 */
 	private double calculateCorpWaterConsumption(WaterBill waterBill, Entry<Double, Double> percent) {
-		return percentageToValue(calculateMaxWaterAllocation(waterBill.getApartmentType().getMemberCount()),
+		return percentageToValue(calculateMaxWaterAllocation(waterBill.getApartmentSize() * 2),
 				percent.getKey());
 	}
 
@@ -173,7 +179,7 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 *                  for the apartment type.
 	 */
 	private double calculateBorewellWaterConsumption(WaterBill waterBill, Entry<Double, Double> percent) {
-		return percentageToValue(calculateMaxWaterAllocation(waterBill.getApartmentType().getMemberCount()),
+		return percentageToValue(calculateMaxWaterAllocation(waterBill.getApartmentSize() * 2),
 				percent.getValue());
 	}
 
@@ -184,7 +190,8 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 * @return The maximum water allocation for the guest count.
 	 */
 	private double calculateTankerWaterConsumption(WaterBill waterBill) {
-		return calculateMaxWaterAllocation(waterBill.getGuestCount());
+		return waterBill.getGuestStayDetails().entrySet().stream()
+				.map(entry -> calculateMaxWaterAllocation(entry.getValue(), entry.getKey())).reduce(0, Integer::sum);
 	}
 
 	/**
@@ -195,5 +202,9 @@ public class WaterBillServiceImpl implements WaterBillService {
 	 */
 	private int calculateMaxWaterAllocation(int memberCount) {
 		return memberCount * DEFAULT_WATER_ALLOCATION * NO_OF_DAYS;
+	}
+	
+	private int calculateMaxWaterAllocation(int memberCount, int numberOfDays) {
+		return memberCount * DEFAULT_WATER_ALLOCATION * numberOfDays;
 	}
 }

@@ -1,6 +1,5 @@
 package com.example.geektrust.service;
 
-import com.example.geektrust.constant.ApartmentType;
 import com.example.geektrust.constant.WaterType;
 import com.example.geektrust.dto.WaterBill;
 
@@ -21,7 +20,7 @@ public interface WaterBillService {
 	 * @param ratio         The ratio of water to be allotted to the apartment.
 	 * @return WaterBill
 	 */
-	public WaterBill allotWater(ApartmentType apartmentType, WaterType waterType, int ratio);
+	public WaterBill allotWater(WaterType waterType, int ratio);
 
 	/**
 	 * This function adds the number of guests to the water bill
@@ -29,7 +28,7 @@ public interface WaterBillService {
 	 * @param numberOfGuests The number of guests to add to the water bill.
 	 * @return A WaterBill object
 	 */
-	public WaterBill addGuests(int numberOfGuests);
+	public WaterBill addGuests(int numberOfGuests, int numberOfDays);
 
 	/**
 	 * This function generates a water bill by calculating the total water
@@ -38,4 +37,6 @@ public interface WaterBillService {
 	 * @return A WaterBill object
 	 */
 	public WaterBill generateBill();
+
+	public WaterBill createApartment(Integer apartmentSize, Integer numberOfPersons);
 }

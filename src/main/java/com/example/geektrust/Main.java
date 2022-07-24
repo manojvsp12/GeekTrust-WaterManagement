@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Scanner;
 
-import com.example.geektrust.constant.ApartmentType;
+import com.example.geektrust.constant.WaterBillAppCommonConstants;
 import com.example.geektrust.constant.WaterType;
 import com.example.geektrust.dto.WaterBill;
 import com.example.geektrust.exception.WaterBillAppException;
@@ -59,19 +59,22 @@ public class Main {
 		WaterBillInputValidator validator = new WaterBillInputValidator();
 		validator.validateInput(inputLine);
 		String[] inputData = SPLITTER.split(inputLine);
+		if (inputData[0].contentEquals(WaterBillAppCommonConstants.APARTMENT_CMD)) {
+			Integer apartmentSize = Integer.valueOf(inputData[1]);
+			Integer numberOfPersons = Integer.valueOf(inputData[2]);
+			waterBillService.createApartment(apartmentSize, numberOfPersons);
+		}
 		if (inputData[0].contentEquals(ALLOT_WATER)) {
-			Integer size = Integer.valueOf(inputData[1]);
-			String[] waterRatio = inputData[2].split(":");
+			String[] waterRatio = inputData[1].split(":");
 			Integer corpWaterRatio = Integer.valueOf(waterRatio[0]);
 			Integer boreWaterRatio = Integer.valueOf(waterRatio[1]);
-			waterBillService.allotWater(ApartmentType.getApartmentTypeBySize(size).get(), WaterType.CORPORATION_WATER,
-					corpWaterRatio);
-			waterBillService.allotWater(ApartmentType.getApartmentTypeBySize(size).get(), WaterType.BOREWELL_WATER,
-					boreWaterRatio);
+			waterBillService.allotWater(WaterType.CORPORATION_WATER, corpWaterRatio);
+			waterBillService.allotWater(WaterType.BOREWELL_WATER, boreWaterRatio);
 		}
 		if (inputData[0].contentEquals(ADD_GUESTS)) {
 			Integer guestCount = Integer.valueOf(inputData[1]);
-			waterBillService.addGuests(guestCount);
+			Integer numberOfDays = Integer.valueOf(inputData[2]);
+			waterBillService.addGuests(guestCount, numberOfDays);
 		}
 		if (inputData[0].contentEquals(BILL)) {
 			WaterBill waterBill = waterBillService.generateBill();

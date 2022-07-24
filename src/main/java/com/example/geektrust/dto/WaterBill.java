@@ -1,8 +1,8 @@
 package com.example.geektrust.dto;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-
-import com.example.geektrust.constant.ApartmentType;
 
 /**
  * A class that represents a water bill.
@@ -14,13 +14,11 @@ public class WaterBill {
 	private static WaterBill INSTANCE;
 
 	private WaterBill() {
-
 	}
 
 	/**
 	 * If the instance is null, create a new instance and return it. Otherwise,
-	 * return the existing
-	 * instance, making this class as Singleton.
+	 * return the existing instance, making this class as Singleton.
 	 * 
 	 * @return The instance of the class.
 	 */
@@ -31,10 +29,11 @@ public class WaterBill {
 		return INSTANCE;
 	}
 
-	private ApartmentType apartmentType;
+	private int apartmentSize;
+	private int numberOfPersonsInApartment;
 	private int corporationWaterRatio;
 	private int borewellWaterRatio;
-	private int guestCount;
+	private Map<Integer, Integer> guestStayDetails;
 	private double corporationWaterConsumed;
 	private double borewellWaterConsumed;
 	private double tankerWaterConsumed;
@@ -44,12 +43,20 @@ public class WaterBill {
 	private long totalWaterConsumed;
 	private long totalCost;
 
-	public ApartmentType getApartmentType() {
-		return apartmentType;
+	public void setApartmentSize(int apartmentSize) {
+		this.apartmentSize = apartmentSize;
+	}
+	
+	public int getApartmentSize() {
+		return apartmentSize;
+	}
+	
+	public void setNumberOfPersonsInApartment(int numberOfPersonsInApartment) {
+		this.numberOfPersonsInApartment = numberOfPersonsInApartment;
 	}
 
-	public void setApartmentType(ApartmentType apartmentType) {
-		this.apartmentType = apartmentType;
+	public int getNumberOfPersonsInApartment() {
+		return numberOfPersonsInApartment;
 	}
 
 	public int getCorporationWaterRatio() {
@@ -68,12 +75,15 @@ public class WaterBill {
 		this.borewellWaterRatio = borewellWaterRatio;
 	}
 
-	public int getGuestCount() {
-		return guestCount;
+	public Map<Integer, Integer> getGuestStayDetails() {
+		return guestStayDetails;
 	}
 
-	public void setGuestCount(int guestCount) {
-		this.guestCount = guestCount;
+	public void addGuests(int numberOfGuests, int numberOfDays) {
+		if (Objects.isNull(guestStayDetails)) {
+			guestStayDetails = new HashMap<>();
+		}
+		guestStayDetails.compute(numberOfGuests, (k, v) -> Objects.isNull(v) ? numberOfDays : v + numberOfDays);
 	}
 
 	public long getTotalWaterConsumed() {
@@ -142,9 +152,9 @@ public class WaterBill {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(apartmentType, borewellWaterConsumed, borewellWaterCost, borewellWaterRatio,
-				corporationWaterConsumed, corporationWaterCost, corporationWaterRatio, guestCount, tankerWaterConsumed,
-				tankerWaterCost, totalCost, totalWaterConsumed);
+		return Objects.hash(apartmentSize, numberOfPersonsInApartment, borewellWaterConsumed, borewellWaterCost,
+				borewellWaterRatio, corporationWaterConsumed, corporationWaterCost, corporationWaterRatio,
+				guestStayDetails, tankerWaterConsumed, tankerWaterCost, totalCost, totalWaterConsumed);
 	}
 
 	@Override
@@ -156,7 +166,7 @@ public class WaterBill {
 		if (getClass() != obj.getClass())
 			return false;
 		WaterBill other = (WaterBill) obj;
-		return apartmentType == other.apartmentType
+		return apartmentSize == other.apartmentSize && numberOfPersonsInApartment == other.numberOfPersonsInApartment
 				&& Double.doubleToLongBits(borewellWaterConsumed) == Double
 						.doubleToLongBits(other.borewellWaterConsumed)
 				&& Double.doubleToLongBits(borewellWaterCost) == Double.doubleToLongBits(other.borewellWaterCost)
@@ -164,7 +174,7 @@ public class WaterBill {
 				&& Double.doubleToLongBits(corporationWaterConsumed) == Double
 						.doubleToLongBits(other.corporationWaterConsumed)
 				&& Double.doubleToLongBits(corporationWaterCost) == Double.doubleToLongBits(other.corporationWaterCost)
-				&& corporationWaterRatio == other.corporationWaterRatio && guestCount == other.guestCount
+				&& corporationWaterRatio == other.corporationWaterRatio && guestStayDetails == other.guestStayDetails
 				&& Double.doubleToLongBits(tankerWaterConsumed) == Double.doubleToLongBits(other.tankerWaterConsumed)
 				&& Double.doubleToLongBits(tankerWaterCost) == Double.doubleToLongBits(other.tankerWaterCost)
 				&& totalCost == other.totalCost && totalWaterConsumed == other.totalWaterConsumed;
@@ -172,8 +182,8 @@ public class WaterBill {
 
 	@Override
 	public String toString() {
-		return "WaterBill [apartmentType=" + apartmentType + ", corporationWaterRatio=" + corporationWaterRatio
-				+ ", borewellWaterRatio=" + borewellWaterRatio + ", guestCount=" + guestCount
+		return "WaterBill [apartmentSize=" + apartmentSize + ", corporationWaterRatio=" + corporationWaterRatio
+				+ ", borewellWaterRatio=" + borewellWaterRatio + ", guestCount=" + guestStayDetails
 				+ ", corporationWaterConsumed=" + corporationWaterConsumed + ", borewellWaterConsumed="
 				+ borewellWaterConsumed + ", tankerWaterConsumed=" + tankerWaterConsumed + ", corporationWaterCost="
 				+ corporationWaterCost + ", borewellWaterCost=" + borewellWaterCost + ", tankerWaterCost="

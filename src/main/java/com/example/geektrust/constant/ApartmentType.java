@@ -9,7 +9,8 @@ import java.util.stream.Stream;
  */
 public enum ApartmentType {
 
-	TWO_BHK(2, 3), THREE_BHK(3, 5);
+	TWO_BHK(2, 3), 
+	THREE_BHK(3, 5);
 
 	private int apartmentSize;
 	private int memberCount;

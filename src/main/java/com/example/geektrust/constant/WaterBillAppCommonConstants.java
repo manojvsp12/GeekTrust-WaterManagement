@@ -35,9 +35,13 @@ public class WaterBillAppCommonConstants {
 	
 	public static final int BILL_MAX_ALLOWED_INPUT_LENGTH = 1;
 	
-	public static final int ADD_GUESTS_MAX_ALLOWED_INPUT_LENGTH = 2;
+	public static final int ADD_GUESTS_MAX_ALLOWED_INPUT_LENGTH = 3;
 	
 	public static final int ALLOT_WATER_MAX_ALLOWED_RATIO_LENGTH = 2;
 	
-	public static final int ALLOT_WATER_MAX_ALLOWED_INPUT_LENGTH = 3;
+	public static final int ALLOT_WATER_MAX_ALLOWED_INPUT_LENGTH = 2;
+	
+	public static final String APARTMENT_CMD = "APARTMENT";
+	
+	public static final int APARTMENT_MAX_ALLOWED_INPUT_LENGTH = 3;
 }
